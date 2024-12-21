@@ -85,13 +85,13 @@ function App() {
 
           <StyledTabs>
             <StyledTab
-              active={activeTab === 'description'}
+              active={(activeTab === 'description').toString()}
               onClick={() => setActiveTab('description')}
             >
               Description
             </StyledTab>
             <StyledTab
-              active={activeTab === 'examples'}
+              active={(activeTab === 'examples').toString()}
               onClick={() => setActiveTab('examples')}
             >
               Examples
