@@ -4,14 +4,23 @@ import pandas as pd
 import random
 import os
 from openai import Client
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+key = os.getenv("OPENAI_API_KEY")
+
+# Access the OpenAI API key from the environment
 
 app = Flask(__name__)
 
 # Update CORS configuration to allow React
 CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
 
-# Add your OpenAI API Key
-key = "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"
+# Load environment variables from .env file
+load_dotenv()
+key = os.getenv("OPENAI_API_KEY")
 
 # Dynamically determine the absolute path to leetcode.csv
 csv_path = os.path.join(os.path.dirname(__file__), "leetcode.csv")
