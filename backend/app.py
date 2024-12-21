@@ -6,7 +6,7 @@ import os
 from openai import Client
 import os
 from dotenv import load_dotenv
-
+import question_generator
 # Load environment variables from .env file
 load_dotenv()
 key = os.getenv("OPENAI_API_KEY")
@@ -58,7 +58,7 @@ def get_random_question():
 
 @app.route("/random-question", methods=["GET"])
 def random_question():
-    question = get_random_question()
+    question =  question_generator.get_random_question(questions_df)
     response = jsonify(question)
     response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
     response.headers.add("Access-Control-Allow-Credentials", "true")
@@ -79,16 +79,6 @@ def grade_response():
 
         if not user_response:
             return jsonify({"error": "Response cannot be empty"}), 400
-
-        # if question_id is None:
-        #     return jsonify({"error": "Question ID is required"}), 400
-
-        # Fetch the corresponding question based on the provided questionId
-        # try:
-        #     question = questions_df.iloc[question_id]
-        #     question_description = question["problem_description"]
-        # except IndexError:
-        #     return jsonify({"error": "Invalid question ID"}), 404
 
         # Prepare the messages payload
         messages = [
