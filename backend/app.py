@@ -100,7 +100,7 @@ def grade_response():
 
         # Use the client to call the Chat API
         response = client.chat.completions.create(
-            model="gpt-4",  # Or "gpt-3.5-turbo" if using GPT-3.5
+            model="gpt-3.5-turbo",  # Or "gpt-3.5-turbo" if using GPT-3.5
             messages=messages,
             max_tokens=200,
             temperature=0,  # Lower temperature for deterministic responses
