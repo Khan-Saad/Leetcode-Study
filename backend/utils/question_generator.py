@@ -1,7 +1,13 @@
+from flask import jsonify
 import pandas as pd
 import random
+import os
 
-def get_random_question(questions_df):
+def get_dataframe():
+    csv_path = os.path.join(os.path.dirname(__file__), "leetcode.csv")
+    return pd.read_csv(csv_path)
+
+def _get_random_question(questions_df):
     # Filter DataFrame to include only rows with valid difficulties, titles, and descriptions
     valid_questions_df = questions_df[
         questions_df["difficulty"].notna()
@@ -26,3 +32,12 @@ def get_random_question(questions_df):
         "difficulty": question["difficulty"],
         "description": question["problem_description"],
     }
+
+def random_question(questions_df):
+    question = _get_random_question(questions_df)
+    response = jsonify(question)
+    response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+    response.headers.add("Access-Control-Allow-Credentials", "true")
+    response.headers.add("Access-Control-Allow-Methods", "GET, OPTIONS")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+    return response

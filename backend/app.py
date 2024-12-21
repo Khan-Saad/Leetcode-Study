@@ -6,12 +6,11 @@ import os
 from openai import Client
 import os
 from dotenv import load_dotenv
-import question_generator
+import utils.question_generator as questions
+
 # Load environment variables from .env file
 load_dotenv()
 key = os.getenv("OPENAI_API_KEY")
-
-# Access the OpenAI API key from the environment
 
 app = Flask(__name__)
 
@@ -22,49 +21,12 @@ CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
 load_dotenv()
 key = os.getenv("OPENAI_API_KEY")
 
-# Dynamically determine the absolute path to leetcode.csv
-csv_path = os.path.join(os.path.dirname(__file__), "leetcode.csv")
-
 # Load the questions CSV
-questions_df = pd.read_csv(csv_path)
-
-
-def get_random_question():
-    # Filter DataFrame to include only rows with valid difficulties, titles, and descriptions
-    valid_questions_df = questions_df[
-        questions_df["difficulty"].notna()
-        & (questions_df["difficulty"] != "Unknown")
-        & questions_df["title"].notna()
-        & questions_df["problem_description"].notna()
-    ]
-    
-    if valid_questions_df.empty:
-        return {
-            "title": "No Questions Available",
-            "difficulty": "N/A",
-            "description": "All questions have invalid or missing data.",
-        }
-
-    # Select a random question from the filtered DataFrame
-    random_index = random.randint(0, len(valid_questions_df) - 1)
-    question = valid_questions_df.iloc[random_index]
-    return {
-        "id": int(question["id"]),  # Add an ID for reference
-        "title": question["title"],
-        "difficulty": question["difficulty"],
-        "description": question["problem_description"],
-    }
-
+questions_df = questions.get_dataframe()
 
 @app.route("/random-question", methods=["GET"])
 def random_question():
-    question =  question_generator.get_random_question(questions_df)
-    response = jsonify(question)
-    response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
-    response.headers.add("Access-Control-Allow-Credentials", "true")
-    response.headers.add("Access-Control-Allow-Methods", "GET, OPTIONS")
-    response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
-    return response
+    return questions.random_question(questions_df) # Fetch the question
 
 client = Client(api_key=key)
 
