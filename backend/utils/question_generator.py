@@ -18,6 +18,7 @@ def _get_random_question(questions_df):
         "difficulty": question["difficulty"],
         "description": question["formatted_description"],
         "examples": question["examples_constraints"],
+        "url": question["solution_URL"]
     }
 
 def random_question(questions_df):
