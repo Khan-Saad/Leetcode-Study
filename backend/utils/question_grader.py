@@ -18,6 +18,7 @@ def grade_response(request, client):
             {"role": "user", "content": f"Problem Description: {question_title}"},
             {"role": "user", "content": f"User's Approach: {user_response}"},
             {"role": "user", "content": "Grade this approach and provide constructive feedback. Rate it on a scale of 1 to 10"},
+            {"role": "user", "content": "Also give a quick blurb on the optimal solution in a second paragraph"},
         ]
 
         # Use the client to call the Chat API
