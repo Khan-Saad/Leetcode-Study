@@ -10,6 +10,13 @@ import {
   ResponseArea,
   SubmitButton,
   FeedbackContainer,
+  LoadingContainer,
+  Spinner,
+  LoadingText,
+  SolutionArea,
+  FeedbackTabs,
+  FeedbackTab,
+  Quote,
 } from './App.styles';
 import { useRandomQuestion } from '../hooks/useRandomQuestion';
 import { extractDescription, formatExamples } from '../utils/descriptionUtils';
@@ -19,8 +26,13 @@ function App() {
   const [activeTab, setActiveTab] = useState('description'); // 'description' or 'examples'
   const [userResponse, setUserResponse] = useState('');
   const [feedback, setFeedback] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [activeFeedbackTab, setActiveFeedbackTab] = useState('feedback'); // 'feedback' or 'solution'
+  const [loadingQuestion, setLoadingQuestion] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       const response = await fetch('http://127.0.0.1:5000/grade-response', {
         method: 'POST',
@@ -32,94 +44,140 @@ function App() {
 
       const data = await response.json();
       setFeedback(data.feedback); // Set feedback from backend
+      setSubmitted(true);
     } catch (error) {
       console.error('Error submitting response:', error);
       setFeedback('Error: Unable to get feedback.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (error) {
-    return (
-      <Container>
-        <StyledCard>
-          <CardContentStyled>
-            <Title difficulty="error">Error</Title>
-            <p>Unable to load a random question. Please try again later.</p>
-          </CardContentStyled>
-        </StyledCard>
-      </Container>
-    );
-  }
+  const handleNextQuestion = async () => {
+    setLoadingQuestion(true);
+    await new Promise((resolve) => setTimeout(resolve, 500)); // Ensure loading lasts at least 0.5 seconds
+    await refetch();
+    setUserResponse('');
+    setFeedback('');
+    setActiveFeedbackTab('feedback');
+    setSubmitted(false);
+    setLoadingQuestion(false);
+  };
 
-  if (!question) {
-    return (
-      <Container>
-        <StyledCard>
-          <CardContentStyled>
-            <Title difficulty="loading">Loading...</Title>
-            <p>Fetching a random question. Please wait.</p>
-          </CardContentStyled>
-        </StyledCard>
-      </Container>
-    );
-  }
+  const renderLoading = () => (
+    <LoadingContainer>
+      <Spinner />
+      <LoadingText>Loading...</LoadingText>
+    </LoadingContainer>
+  );
 
-  const descriptionText = extractDescription(question.description);
-  const examplesContent = formatExamples(question.description);
-
-  return (
+  const renderError = () => (
     <Container>
-      <div style={{ display: 'flex', width: '100%' }}>
-        {/* Left Side: Question Content */}
-        <StyledCard>
-          <CardContentStyled>
-            <Title difficulty={question.difficulty}>{question.title}</Title>
-            <ContentArea>
-              {activeTab === 'description' ? (
-                <p>{descriptionText}</p>
-              ) : (
-                <div>{examplesContent}</div>
-              )}
-            </ContentArea>
-          </CardContentStyled>
+      <StyledCard>
+        <CardContentStyled>
+          <Title difficulty="error">Error</Title>
+          <p>Unable to load a random question. Please try again later.</p>
+        </CardContentStyled>
+      </StyledCard>
+    </Container>
+  );
 
-          <StyledTabs>
-            <StyledTab
-              active={activeTab === 'description'}
-              onClick={() => setActiveTab('description')}
+  const renderQuestionContent = () => (
+    <StyledCard style={{ position: 'relative' }}>
+      {loadingQuestion && renderLoading()}
+      <CardContentStyled>
+        <Title difficulty={question.difficulty}>{question.title}</Title>
+        <ContentArea>
+          {activeTab === 'description' ? (
+            <p>{extractDescription(question.description)}</p>
+          ) : (
+            <div>{formatExamples(question.description)}</div>
+          )}
+        </ContentArea>
+      </CardContentStyled>
+
+      <StyledTabs>
+        <StyledTab
+          active={activeTab === 'description'}
+          onClick={() => setActiveTab('description')}
+        >
+          Description
+        </StyledTab>
+        <StyledTab
+          active={activeTab === 'examples'}
+          onClick={() => setActiveTab('examples')}
+        >
+          Examples
+        </StyledTab>
+      </StyledTabs>
+    </StyledCard>
+  );
+
+  const renderResponseArea = () => (
+    <ResponseArea style={{ position: 'relative' }}>
+      {loading && renderLoading()}
+      <textarea
+        placeholder="Describe your approach here..."
+        value={userResponse}
+        onChange={(e) => setUserResponse(e.target.value)}
+        style={{ width: '100%', height: '150px', marginBottom: '10px' }}
+      />
+      <SubmitButton onClick={handleSubmit}>Submit</SubmitButton>
+
+      {submitted ? (
+        <>
+          <FeedbackTabs>
+            <FeedbackTab
+              active={activeFeedbackTab === 'feedback'}
+              onClick={() => setActiveFeedbackTab('feedback')}
             >
-              Description
-            </StyledTab>
-            <StyledTab
-              active={activeTab === 'examples'}
-              onClick={() => setActiveTab('examples')}
+              Feedback
+            </FeedbackTab>
+            <FeedbackTab
+              active={activeFeedbackTab === 'solution'}
+              onClick={() => setActiveFeedbackTab('solution')}
             >
-              Examples
-            </StyledTab>
-          </StyledTabs>
-        </StyledCard>
+              Solution
+            </FeedbackTab>
+          </FeedbackTabs>
 
-        {/* Right Side: User Response */}
-        <ResponseArea>
-          <textarea
-            placeholder="Describe your approach here..."
-            value={userResponse}
-            onChange={(e) => setUserResponse(e.target.value)}
-            style={{ width: '100%', height: '150px', marginBottom: '10px' }}
-          />
-          <SubmitButton onClick={handleSubmit}>Submit</SubmitButton>
-
-          {/* Feedback Section */}
-          {feedback && (
+          {activeFeedbackTab === 'feedback' && feedback && (
             <FeedbackContainer>
               <strong>Feedback:</strong>
               <p>{feedback}</p>
             </FeedbackContainer>
           )}
-        </ResponseArea>
-      </div>
 
-      <SubmitButton onClick={refetch} style={{ marginTop: '20px' }}>
+          {activeFeedbackTab === 'solution' && (
+            <SolutionArea>
+              <pre>
+                <code>
+{`function helloWorld() {
+  console.log("Hello, World!");
+}`}
+                </code>
+              </pre>
+            </SolutionArea>
+          )}
+        </>
+      ) : (
+        <div style={{ marginTop: '20px', textAlign: 'center', color: '#555' }}>
+          <Quote />
+        </div>
+      )}
+    </ResponseArea>
+  );
+
+  if (error) return renderError();
+  if (!question) return renderLoading();
+
+  return (
+    <Container>
+      <div style={{ display: 'flex', width: '100%' }}>
+        {renderQuestionContent()}
+        {renderResponseArea()}
+      </div>
+      <SubmitButton onClick={handleNextQuestion} style={{ marginTop: '20px' }}>
         Next Question
       </SubmitButton>
     </Container>
