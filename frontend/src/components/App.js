@@ -17,9 +17,10 @@ import {
   FeedbackTabs,
   FeedbackTab,
   Quote,
+  GlobalStyle,
 } from './App.styles';
 import { useRandomQuestion } from '../hooks/useRandomQuestion';
-import { extractDescription, formatExamples } from '../utils/descriptionUtils';
+import ReactMarkdown from 'react-markdown';
 
 function App() {
   const { question, error, refetch } = useRandomQuestion();
@@ -89,9 +90,9 @@ function App() {
         <Title difficulty={question.difficulty}>{question.title}</Title>
         <ContentArea>
           {activeTab === 'description' ? (
-            <p>{extractDescription(question.description)}</p>
+            <ReactMarkdown>{question.description}</ReactMarkdown>
           ) : (
-            <div>{formatExamples(question.description)}</div>
+            <ReactMarkdown>{question.examples}</ReactMarkdown>
           )}
         </ContentArea>
       </CardContentStyled>
@@ -172,15 +173,18 @@ function App() {
   if (!question) return renderLoading();
 
   return (
-    <Container>
-      <div style={{ display: 'flex', width: '100%' }}>
-        {renderQuestionContent()}
-        {renderResponseArea()}
-      </div>
-      <SubmitButton onClick={handleNextQuestion} style={{ marginTop: '20px' }}>
-        Next Question
-      </SubmitButton>
-    </Container>
+    <>
+      <GlobalStyle />
+      <Container>
+        <div style={{ display: 'flex', width: '100%' }}>
+          {renderQuestionContent()}
+          {renderResponseArea()}
+        </div>
+        <SubmitButton onClick={handleNextQuestion} style={{ marginTop: '20px' }}>
+          Next Question
+        </SubmitButton>
+      </Container>
+    </>
   );
 }
 
