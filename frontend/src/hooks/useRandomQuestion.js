@@ -5,9 +5,10 @@ export function useRandomQuestion() {
   const [question, setQuestion] = useState(null);
   const [error, setError] = useState(null);
 
-  const fetchQuestion = async () => {
+  const fetchQuestion = async (difficulty = []) => {
     try {
-      const response = await axios.get("http://127.0.0.1:5000/random-question", {
+      const query = difficulty.length ? `?difficulty=${difficulty.join('&difficulty=')}` : '';
+      const response = await axios.get(`http://127.0.0.1:5000/random-question${query}`, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });

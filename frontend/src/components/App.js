@@ -18,9 +18,12 @@ import {
   FeedbackTab,
   Quote,
   GlobalStyle,
+  StyledSelect,
+  StyledInputLabel,
 } from './App.styles';
 import { useRandomQuestion } from '../hooks/useRandomQuestion';
 import ReactMarkdown from 'react-markdown';
+import { MenuItem, FormControl, Checkbox, ListItemText } from '@mui/material';
 
 function App() {
   const { question, error, refetch } = useRandomQuestion();
@@ -31,6 +34,7 @@ function App() {
   const [activeFeedbackTab, setActiveFeedbackTab] = useState('feedback'); // 'feedback' or 'solution'
   const [loadingQuestion, setLoadingQuestion] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [difficulty, setDifficulty] = useState([]); // 'Easy', 'Medium', 'Hard'
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -57,11 +61,19 @@ function App() {
   const handleNextQuestion = async () => {
     setLoadingQuestion(true);
     await new Promise((resolve) => setTimeout(resolve, 500)); // Ensure loading lasts at least 0.5 seconds
-    await refetch();
+    await refetch(difficulty);
     setUserResponse('');
     setFeedback('');
     setActiveFeedbackTab('feedback');
     setSubmitted(false);
+    setLoadingQuestion(false);
+  };
+
+  const handleDifficultyChange = async (event) => {
+    const value = event.target.value;
+    setDifficulty(value);
+    setLoadingQuestion(true);
+    await refetch(value.length ? value : ['All']);
     setLoadingQuestion(false);
   };
 
@@ -180,6 +192,32 @@ function App() {
     <>
       <GlobalStyle />
       <Container>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <h1>Question App</h1>
+          <FormControl variant="outlined" style={{ minWidth: 200 }}>
+            <StyledInputLabel>Difficulty</StyledInputLabel>
+            <StyledSelect
+              multiple
+              value={difficulty}
+              onChange={handleDifficultyChange}
+              renderValue={(selected) => selected.length ? selected.join(', ') : 'All'}
+              label="Difficulty"
+            >
+              <MenuItem value="Easy">
+                <Checkbox checked={difficulty.indexOf('Easy') > -1} />
+                <ListItemText primary="Easy" />
+              </MenuItem>
+              <MenuItem value="Medium">
+                <Checkbox checked={difficulty.indexOf('Medium') > -1} />
+                <ListItemText primary="Medium" />
+              </MenuItem>
+              <MenuItem value="Hard">
+                <Checkbox checked={difficulty.indexOf('Hard') > -1} />
+                <ListItemText primary="Hard" />
+              </MenuItem>
+            </StyledSelect>
+          </FormControl>
+        </div>
         <div style={{ display: 'flex', width: '100%' }}>
           {renderQuestionContent()}
           {renderResponseArea()}

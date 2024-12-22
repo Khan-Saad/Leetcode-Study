@@ -5,6 +5,8 @@ import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
+import Select from '@mui/material/Select';
+import InputLabel from '@mui/material/InputLabel';
 
 const darkMode = {
   background: '#121212',
@@ -255,6 +257,51 @@ export const Quote = styled(Typography)(({ theme }) => ({
     content: '"The only limit to our realization of tomorrow is our doubts of today."',
     display: 'block',
     textAlign: 'center',
+  },
+}));
+
+export const StyledSelect = styled(Select)(({ theme }) => ({
+  backgroundColor: darkMode.surface,
+  color: darkMode.onSurface,
+  '& .MuiOutlinedInput-notchedOutline': {
+    borderColor: darkMode.onSurface,
+  },
+  '&:hover .MuiOutlinedInput-notchedOutline': {
+    borderColor: darkMode.primary,
+  },
+  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+    borderColor: darkMode.primary,
+  },
+  '& .MuiSvgIcon-root': {
+    color: darkMode.onSurface,
+  },
+  '& .MuiInputLabel-root': {
+    color: darkMode.onSurface,
+  },
+  '& .MuiInputLabel-root.Mui-focused': {
+    color: darkMode.primary,
+  },
+  '& .MuiMenuItem-root': {
+    backgroundColor: darkMode.surface,
+    color: darkMode.onSurface,
+  },
+  '& .MuiMenuItem-root.Mui-selected': {
+    backgroundColor: darkMode.primary,
+    color: darkMode.onPrimary,
+  },
+  '& .MuiMenuItem-root.Mui-selected:hover': {
+    backgroundColor: darkMode.primary,
+    color: darkMode.onPrimary,
+  },
+  '& .MuiSelect-select': {
+    color: darkMode.onSurface,
+  },
+}));
+
+export const StyledInputLabel = styled(InputLabel)(({ theme }) => ({
+  color: darkMode.onSurface,
+  '&.Mui-focused': {
+    color: darkMode.primary,
   },
 }));
 

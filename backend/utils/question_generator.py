@@ -10,7 +10,6 @@ def get_dataframe():
 def _get_random_question(questions_df):    
     # Select a random question from the DataFrame
     random_index = random.randint(0, len(questions_df) - 1)
-    # random_index = 2
     question = questions_df.iloc[random_index]
     return {
         "id": int(question["id"]),  # Add an ID for reference
