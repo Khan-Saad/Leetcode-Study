@@ -16,19 +16,21 @@ CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
 load_dotenv()
 key = os.getenv("OPENAI_API_KEY")
 questions_df = questions.get_dataframe()
-filtered_df = questions.get_dataframe()
-difficulty = ["All"]
+client = Client(api_key=key)
+
 @app.route("/random-question", methods=["GET"])
 def random_question():
-    #TODO This is messy
-
-    given_difficulty = request.args.getlist('difficulty') 
-    if given_difficulty != difficulty:
-        filtered_df = questions_df if 'All' in difficulty or not difficulty else questions_df[questions_df['difficulty'].isin(difficulty)] # Fetch the question
+    #TODO This is terrible fix this. 
+    difficulty = request.args.getlist('difficulty')
+    category = request.args.getlist('category')
+    difficulty = [d.capitalize() for d in difficulty]  # Capitalize first letters
+    print(f"Difficulty: {difficulty}, Category: {category}")
+    filtered_df = questions_df
+    if 'All' not in difficulty and difficulty:
+        filtered_df = filtered_df[filtered_df['difficulty'].isin(difficulty)]
+    if 'All' not in category and category:
+        filtered_df = filtered_df[filtered_df['topic_tags'].apply(lambda x: any(cat in x for cat in category))]
     return questions.random_question(filtered_df) # Fetch the question
-
-
-client = Client(api_key=key)
 
 @app.route("/grade-response", methods=["POST"])
 def grade_response():

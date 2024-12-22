@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   StyledCard,
@@ -35,6 +35,15 @@ function App() {
   const [loadingQuestion, setLoadingQuestion] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [difficulty, setDifficulty] = useState([]); // 'Easy', 'Medium', 'Hard'
+  const [category, setCategory] = useState([]); // Problem categories
+  const [categories, setCategories] = useState([]); // All available categories
+
+  useEffect(() => {
+    // Define categories here
+    setCategories([
+      'Array', 'String', 'Hash Table', 'Dynamic Programming', 'Math', 'Sorting', 'Greedy', 'Depth-First Search', 'Breadth-First Search', 'Tree', 'Binary Search', 'Matrix', 'Two Pointers', 'Bit Manipulation', 'Stack', 'Heap', 'Graph', 'Design', 'Trie', 'Sliding Window', 'Union Find', 'Backtracking', 'Linked List', 'Recursion', 'Divide and Conquer', 'Topological Sort', 'Binary Indexed Tree', 'Segment Tree', 'Queue', 'Minimax', 'Randomized'
+    ]);
+  }, []);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -61,7 +70,7 @@ function App() {
   const handleNextQuestion = async () => {
     setLoadingQuestion(true);
     await new Promise((resolve) => setTimeout(resolve, 500)); // Ensure loading lasts at least 0.5 seconds
-    await refetch(difficulty);
+    await refetch(difficulty, category);
     setUserResponse('');
     setFeedback('');
     setActiveFeedbackTab('feedback');
@@ -73,7 +82,15 @@ function App() {
     const value = event.target.value;
     setDifficulty(value);
     setLoadingQuestion(true);
-    await refetch(value.length ? value : ['All']);
+    await refetch(value.length ? value : ['All'], category);
+    setLoadingQuestion(false);
+  };
+
+  const handleCategoryChange = async (event) => {
+    const value = event.target.value;
+    setCategory(value);
+    setLoadingQuestion(true);
+    await refetch(difficulty, value.length ? value : ['All']);
     setLoadingQuestion(false);
   };
 
@@ -194,6 +211,30 @@ function App() {
       <Container>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
           <h1>Question App</h1>
+          <FormControl variant="outlined" style={{ minWidth: 200, marginRight: 16 }}>
+            <StyledInputLabel>Category</StyledInputLabel>
+            <StyledSelect
+              multiple
+              value={category}
+              onChange={handleCategoryChange}
+              renderValue={(selected) => selected.length ? selected.join(', ') : 'All'}
+              label="Category"
+              MenuProps={{
+                PaperProps: {
+                  style: {
+                    maxHeight: 224,
+                  },
+                },
+              }}
+            >
+              {categories.map((cat) => (
+                <MenuItem key={cat} value={cat}>
+                  <Checkbox checked={category.indexOf(cat) > -1} />
+                  <ListItemText primary={cat} />
+                </MenuItem>
+              ))}
+            </StyledSelect>
+          </FormControl>
           <FormControl variant="outlined" style={{ minWidth: 200 }}>
             <StyledInputLabel>Difficulty</StyledInputLabel>
             <StyledSelect
