@@ -87,7 +87,11 @@ function App() {
     <StyledCard style={{ position: 'relative' }}>
       {loadingQuestion && renderLoading()}
       <CardContentStyled>
-        <Title difficulty={question.difficulty}>{question.title}</Title>
+        <Title difficulty={question.difficulty}>
+          <a href={question.url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>
+            {question.title}
+          </a>
+        </Title>
         <ContentArea>
           {activeTab === 'description' ? (
             <ReactMarkdown>{question.description}</ReactMarkdown>
