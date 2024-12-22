@@ -20,7 +20,6 @@ import {
   GlobalStyle,
 } from './App.styles';
 import { useRandomQuestion } from '../hooks/useRandomQuestion';
-import { extractDescription, formatExamples } from '../utils/descriptionUtils';
 import ReactMarkdown from 'react-markdown';
 
 function App() {
